@@ -53,56 +53,69 @@ export default class NinjaMoncho extends Phaser.Scene {
           this.physics.add.collider(this.Ninja, this.platforms);
 
 
-    // PUNTAJE AGREGADO - MEJORA 2
-      this.puntaje = 0;
-      this.scoreText = this.add.text(16, 40, 'Puntos: 0', {
-      fontSize: '24px',
-      fill: '#fff'
-        });
+   // PUNTAJE AGREGADO - MEJORA 2 y 3
+    this.puntaje = 0;
+    this.scoreText = this.add.text(16, 40, 'Puntos: 0', {
+    fontSize: '24px',
+    fill: '#fff'
+});
 
       // Grupo de ítems
-        this.itemsGroup = this.physics.add.group();
+      this.itemsGroup = this.physics.add.group();
 
-        this.generadorItems = this.time.addEvent({
-          delay: 500,
-          loop: true,
-          callback: () => {
-            if (this.gameOver) return;
+      // Generador de ítems con intervalo reducido a 0.5 segundos
+      this.generadorItems = this.time.addEvent({
+        delay: 500, // Generar cada 0.5 segundos
+        loop: true,
+        callback: () => {
+          if (this.gameOver) return;
 
-            const tipos = ["square", "triangle", "diamond"];
-            const tipo = Phaser.Utils.Array.GetRandom(tipos);
-            const x = Phaser.Math.Between(50, 750);
-            const item = this.itemsGroup.create(x, 0, tipo);
-            item.setData("tipo", tipo);
-            item.setVelocityY(150);
-          }
-        });
+          const tipos = ["square", "triangle", "diamond"];
+          const tipo = Phaser.Utils.Array.GetRandom(tipos);
+          const x = Phaser.Math.Between(50, 750);
+          const item = this.itemsGroup.create(x, 0, tipo);
 
-       // Recolección
-          this.physics.add.overlap(this.Ninja, this.itemsGroup, (jugador, item) => {
-          const tipo = item.getData("tipo");
+          // Asignar propiedades
+          item.setData("tipo", tipo);
+          item.setVelocityY(150); // Velocidad hacia abajo
+        }
+      });
+
+      // Recolección de ítems (cuando el Ninja toca el ítem)
+        this.physics.add.overlap(this.Ninja, this.itemsGroup, (jugador, item) => {
+        const tipo = item.getData("tipo");
+        item.destroy();  // Destruir el ítem cuando el Ninja lo recoja
+
+        // Sumar puntos según tipo
+        if (tipo === "square") this.puntaje += 10;
+        else if (tipo === "triangle") this.puntaje += 15;
+        else if (tipo === "diamond") this.puntaje += 25;
+
+        // Mostrar puntaje
+        this.scoreText.setText(`Puntos: ${this.puntaje}`);
+
+        // Condición de victoria
+        if (this.puntaje >= 100) {
+          this.add.text(this.scale.width / 2, this.scale.height / 2, '¡GANASTE!', {
+            fontSize: '64px',
+            fontStyle: 'bold',
+            fill: '#0f0'
+          }).setOrigin(0.5);
+          this.scene.pause();
+        }
+      });
+
+      // Colisión de los ítems con las plataformas (rebote con el piso)
+          this.physics.add.collider(this.itemsGroup, this.platforms, (item, suelo) => {
+      // Descontar 5 puntos cuando el ítem toque el piso
+          this.puntaje -= 5;
+
+      // Mostrar el puntaje actualizado
+          this.scoreText.setText(`Puntos: ${this.puntaje}`);
+
+      // Destruir el ítem cuando toque el piso (si no fue recolectado)
           item.destroy();
-
-          // Sumar puntos según tipo
-            if (tipo === "square") this.puntaje += 10;
-            else if (tipo === "triangle") this.puntaje += 15;
-            else if (tipo === "diamond") this.puntaje += 25;
-
-          // Mostrar puntaje
-            this.scoreText.setText(`Puntos: ${this.puntaje}`);
-
-          // Condición de victoria
-            if (this.puntaje >= 100) {
-            this.add.text(this.scale.width / 2, this.scale.height / 2, '¡GANASTE!', {
-              fontSize: '64px',
-              fill: '#0f0'
-            }).setOrigin(0.5);
-            this.scene.pause();
-          }
-        });
-
-
-    
+      });
 
 
         // TEMPORIZADOR AGREGADO //
