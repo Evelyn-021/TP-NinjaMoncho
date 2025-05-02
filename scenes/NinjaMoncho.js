@@ -12,6 +12,8 @@ export default class NinjaMoncho extends Phaser.Scene {
     this.tiempoRestante = 30; // segundos
     this.textoTemporizador = null;
     this.gameOver = false;
+    this.puntajeTotal = 0;
+
   }
 
   preload() {
@@ -28,9 +30,6 @@ export default class NinjaMoncho extends Phaser.Scene {
 
   create() {
     // create game objects
-
-   
-
   
     //Imagen de fondo
     this.add.image(400, 300, "Cielo").setScale(2);
@@ -54,65 +53,56 @@ export default class NinjaMoncho extends Phaser.Scene {
           this.physics.add.collider(this.Ninja, this.platforms);
 
 
-    // Contadores por tipo
-        this.itemCounts = {
-          square: 0,
-          triangle: 0,
-          diamond: 0
-        };
-
-        // Textos en pantalla
-          this.add.text(16, 10, 'Recolección:', { fontSize: '20px', fill: '#fff' });
-          this.scoreText = this.add.text(16, 40, 'Cuadrados: 0\nTriángulos: 0\nDiamantes: 0', {
-          fontSize: '18px',
-          fill: '#fff'
+    // PUNTAJE AGREGADO - MEJORA 2
+      this.puntaje = 0;
+      this.scoreText = this.add.text(16, 40, 'Puntos: 0', {
+      fontSize: '24px',
+      fill: '#fff'
         });
 
-        // Grupo de ítems
-            this.itemsGroup = this.physics.add.group();
+      // Grupo de ítems
+        this.itemsGroup = this.physics.add.group();
 
-            this.generadorItems = this.time.addEvent({
-              delay: 500,
-              loop: true,
-              callback: () => {
-                if (this.gameOver) return; // No generar más ítems si el juego ha terminado
-        
-                const tipos = ["square", "triangle", "diamond"];
-                const tipo = Phaser.Utils.Array.GetRandom(tipos);
-                const x = Phaser.Math.Between(50, 750);
-                const item = this.itemsGroup.create(x, 0, tipo).setScale(1);
-                item.setData("tipo", tipo);
-                item.setVelocityY(150);
-              }
-            });
-        
-            this.physics.add.overlap(this.Ninja, this.itemsGroup, (jugador, item) => {
-              const tipo = item.getData("tipo");
-              this.itemCounts[tipo]++;
-              item.destroy();
-        
-              this.scoreText.setText(
-                `Cuadrados: ${this.itemCounts.square}\nTriángulos: ${this.itemCounts.triangle}\nDiamantes: ${this.itemCounts.diamond}`
-              );
-        
-              if (
-                this.itemCounts.square >= 2 &&
-                this.itemCounts.triangle >= 2 &&
-                this.itemCounts.diamond >= 2
-              ) {
-                this.add.text(this.scale.width / 2, this.scale.height / 2, '¡GANASTE!', {
-                  fontSize: '64px',
-                  fill: '#0f0',
-                  fontStyle: 'bold',
-                  align: 'center'
-                }).setOrigin(0.5, 0.5);
-                this.scene.pause();
+        this.generadorItems = this.time.addEvent({
+          delay: 500,
+          loop: true,
+          callback: () => {
+            if (this.gameOver) return;
+
+            const tipos = ["square", "triangle", "diamond"];
+            const tipo = Phaser.Utils.Array.GetRandom(tipos);
+            const x = Phaser.Math.Between(50, 750);
+            const item = this.itemsGroup.create(x, 0, tipo);
+            item.setData("tipo", tipo);
+            item.setVelocityY(150);
           }
         });
 
-        
-    
+       // Recolección
+          this.physics.add.overlap(this.Ninja, this.itemsGroup, (jugador, item) => {
+          const tipo = item.getData("tipo");
+          item.destroy();
 
+          // Sumar puntos según tipo
+            if (tipo === "square") this.puntaje += 10;
+            else if (tipo === "triangle") this.puntaje += 15;
+            else if (tipo === "diamond") this.puntaje += 25;
+
+          // Mostrar puntaje
+            this.scoreText.setText(`Puntos: ${this.puntaje}`);
+
+          // Condición de victoria
+            if (this.puntaje >= 100) {
+            this.add.text(this.scale.width / 2, this.scale.height / 2, '¡GANASTE!', {
+              fontSize: '64px',
+              fill: '#0f0'
+            }).setOrigin(0.5);
+            this.scene.pause();
+          }
+        });
+
+
+    
 
 
         // TEMPORIZADOR AGREGADO //
@@ -157,7 +147,6 @@ export default class NinjaMoncho extends Phaser.Scene {
   update() {// UPDATE GAME OBJECTS
 
     if (this.gameOver) return;
-
 
     
       //Movimiento hacia la izq.
