@@ -95,6 +95,7 @@ export default class NinjaMoncho extends Phaser.Scene {
             if (this.puntaje >= 100) {
             this.add.text(this.scale.width / 2, this.scale.height / 2, '¡GANASTE!', {
               fontSize: '64px',
+              fontStyle: 'bold',
               fill: '#0f0'
             }).setOrigin(0.5);
             this.scene.pause();
