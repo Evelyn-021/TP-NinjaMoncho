@@ -24,7 +24,8 @@ export default class NinjaMoncho extends Phaser.Scene {
     this.load.image("FondoMenu", "public/assets/FondoMenu.jpg");
     this.load.image("square", "public/assets/square.png");
     this.load.image("triangle", "public/assets/triangle.png");
-    this.load.image("Ninja", "public/assets/Ninja.png");
+    this.load.image("skull", "public/assets/skull.png"); //Mejora 5
+    this.load.image("Ninja", "public/assets/Ninja.png"); 
     
   }
 
@@ -75,7 +76,7 @@ export default class NinjaMoncho extends Phaser.Scene {
         callback: () => {
           if (this.gameOver) return;
 
-          const tipos = ["square", "triangle", "diamond"];
+          const tipos = ["square", "triangle", "diamond", "skull"];
           const tipo = Phaser.Utils.Array.GetRandom(tipos);
           const x = Phaser.Math.Between(50, 750);
           const item = this.itemsGroup.create(x, 0, tipo);
@@ -95,6 +96,7 @@ export default class NinjaMoncho extends Phaser.Scene {
         if (tipo === "square") this.puntaje += 10;
         else if (tipo === "triangle") this.puntaje += 15;
         else if (tipo === "diamond") this.puntaje += 25;
+        else if (tipo === "skull") this.puntaje -= 20; // Mejora 5: penaliza al recolectar
 
         // Mostrar puntaje
         this.scoreText.setText(`Puntos: ${this.puntaje}`);
