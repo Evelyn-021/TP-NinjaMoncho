@@ -1,5 +1,6 @@
-import NinjaMoncho from "/scenes/NinjaMoncho.js";
-
+import NinjaMoncho from "./scenes/NinjaMoncho.js";
+import MenuScene from "./scenes/MenuScene.js";
+import EndScene from "./scenes/EndScene.js";
 // Create a new Phaser config object
 const config = {
   type: Phaser.AUTO,
@@ -27,7 +28,7 @@ const config = {
   // List of scenes to load
   // Only the first scene will be shown
   // Remember to import the scene before adding it to the list
-  scene: [NinjaMoncho],
+  scene: [MenuScene, NinjaMoncho, EndScene], // Primero el menú, luego el juego
 };
 
 // Create a new Phaser game instance
